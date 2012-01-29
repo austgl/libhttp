@@ -6,6 +6,9 @@
 #include "evhtp_types.h"
 #include "myhooks.h"
 #include "evhtp_callback_type.h"
+#include "evhtp_hook_type.h"
+#include "evhtp_proto.h"
+#include "evhtp_ssl_scache_type.h"
 
 #include <stdexcept>
 
