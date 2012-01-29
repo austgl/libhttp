@@ -6,9 +6,9 @@ class evhtp_callback_s;
 #include <functional>
 
 
-struct HashString:public std::unary_function<_STD string, size_t>{
+struct HashString:public std::unary_function<std::string, size_t>{
 public:
-	typedef _STD string _Kty;
+  typedef std::string _Kty;
 
 	size_t operator()(const _Kty& _Keyval) const
 		{	// hash _Keyval to size_t value by pseudorandomizing transform

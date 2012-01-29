@@ -30,9 +30,9 @@ evhtp_s::evhtp_s(event_base * evbase, void * arg){
 
     this->arg         = arg;
     this->evbase      = evbase;
-    this->server_name = "evhtp, sucka";
+    this->server_name = strdup("nginx/1.1.0");
 
-	this->defaults.cb    = _evhtp_default_request_cb;
+    this->defaults.cb    = _evhtp_default_request_cb;
     this->defaults.cbarg = (void*)this;
 
 

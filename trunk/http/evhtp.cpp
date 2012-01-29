@@ -16,8 +16,14 @@
 #include <algorithm>
 #include <memory> //auto_ptr
 #include <inttypes.h>
-#include <event2/bufferevent_ssl.h>
 
+#ifdef OS_TYPE_FreeBSD
+#include <netinet/in.h> //htons
+#include <arpa/inet.h>
+#endif
+
+#include <event2/bufferevent_ssl.h>
+#include <stdio.h>
 #include "evhtp.h"
 #include "MyHtparseHooks.h"
 #include "evhtp_kv.h"
@@ -38,7 +44,7 @@ static int strcasecmp(const char *s1, const char *s2){
 	return scm::strcasecmp(s1,s2);
 }
 #endif
-#ifndef snprintf
+#ifndef HAVE_SNPRINTF
 #define snprintf _snprintf
 #endif
 
@@ -451,7 +457,7 @@ int MyHtparseHooks::path(IHTParser * p, const char * data, size_t len) {
     match_start = (char*)calloc(strlen(path->full) + 1, 1);
     match_end   = (char*)calloc(strlen(path->full) + 1, 1);
 
-	CHECK_NE(path->matched_eoff,NULL)<<"matched_eoff should not be NULL";
+
     memcpy(match_start,
            (void *)(path->full + path->matched_soff),
            path->matched_eoff);
@@ -1585,25 +1591,21 @@ evhtp_bind_sockaddr(evhtp_t * htp, struct sockaddr * sa, size_t sin_len, int bac
     return htp->server ? 0 : -1;
 }
 
-int
-	evhtp_bind_socket(evhtp_t * htp, const char * baddr, uint16_t port, int backlog) {
-		struct sockaddr_in  sin;
-		struct sockaddr  * sa;
-		size_t             sin_len;
+int evhtp_bind_socket(evhtp_t * htp, const char * baddr, uint16_t port, int backlog) {
+  struct sockaddr_in  sin;
+  struct sockaddr  * sa;
+  size_t             sin_len;
 
-		memset(&sin, 0, sizeof(sin));
-
-
-
-		sin_len             = sizeof(struct sockaddr_in);
-
-		sin.sin_family      = AF_INET;
-		sin.sin_port        = htons(port);
-		sin.sin_addr.s_addr = inet_addr(baddr);
-
-		sa = (struct sockaddr *)&sin;
-
-		return evhtp_bind_sockaddr(htp, sa, sin_len, backlog);
+  memset(&sin, 0, sizeof(sin));
+  
+  sin_len             = sizeof(struct sockaddr_in);
+  sin.sin_family      = AF_INET;
+  sin.sin_port        = htons(port);
+  sin.sin_addr.s_addr = inet_addr(baddr);
+  
+  sa = (struct sockaddr *)&sin;
+  
+  return evhtp_bind_sockaddr(htp, sa, sin_len, backlog);
 } /* evhtp_bind_socket */
 
 
