@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.8) 
 PROJECT(websocketServer CXX C)
-
+ENABLE_TESTING()
 set (VERSION_MAJOR 1)
 set (VERSION_MINOR 0)
 find_package(OpenSSL REQUIRED)
@@ -26,11 +26,11 @@ check_include_files (sys/utsname.h HAVE_SYS_UTSNAME_H)
 check_include_file_cxx (google/malloc_extension.h HAVE_GOOGLE_MALLOC_EXTENSION_H)
 
 
-foreach(filename "<tr1/unordered_map>" "<unordered_map>")
+foreach(filename "tr1/unordered_map" "unordered_map")
   foreach(namespace  "std" "std::tr1")
     check_cxx_source_compiles(
 	    "
-	        #include ${filename}
+	        #include <${filename}>
 	        int main(int argc,char* argv[]) {
 	            ${namespace}::unordered_map<int, int> m;
 	            return 0;
@@ -41,18 +41,18 @@ foreach(filename "<tr1/unordered_map>" "<unordered_map>")
 	if (UNORDERED_MAP_FOUND_${filename}_${namespace})	
        set  (HAVE_HASH_MAP 1)	
 	   set  (HAVE_UNORDERED_MAP 1)
-	   set (HASH_MAP_H "${filename}")
+	   set (HASH_MAP_H "<${filename}>")
 	   set (HASH_NAMESPACE "${namespace}")
 	   break()
 	endif(UNORDERED_MAP_FOUND_${filename}_${namespace})    
 	endforeach(namespace)	
 endforeach(filename)	
 
-foreach(filename "<tr1/unordered_set>" "<unordered_set>")
+foreach(filename "tr1/unordered_set" "unordered_set")
   foreach(namespace  "std" "std::tr1")
     check_cxx_source_compiles(
 	    "
-	        #include ${filename}
+	        #include <${filename}>
 	        int main(int argc,char* argv[]) {
 	            ${namespace}::unordered_set<int, int> m;
 	            return 0;
@@ -62,16 +62,16 @@ foreach(filename "<tr1/unordered_set>" "<unordered_set>")
 		
 	if (UNORDERED_SET_FOUND_${filename}_${namespace})	   
 	   set (HAVE_HASH_SET 1)
-	   set (HASH_SET_H "${filename}")
+	   set (HASH_SET_H "<${filename}>")
 	   break()
 	endif(UNORDERED_SET_FOUND_${filename}_${namespace})    
 	endforeach(namespace)	
 endforeach(filename)	
 
-foreach(filename "<functional>" "<xfunctional>" "<tr1/functional>" "<ext/hash_fun.h>" "<ext/stl_hash_fun.h>" "<hash_fun.h>" "<stl_hash_fun.h>" "<stl/_hash_fun.h>")
+foreach(filename "functional" "xfunctional" "tr1/functional" "ext/hash_fun.h" "ext/stl_hash_fun.h" "hash_fun.h" "stl_hash_fun.h" "stl/_hash_fun.h")
 	check_cxx_source_compiles(
 	    "
-	        #include ${filename}
+	        #include <${filename}>
 	        int main(int argc,char* argv[]) {
 	            int x = ${HASH_NAMESPACE}::hash<int>()(5);
 	            return 0;
@@ -79,7 +79,7 @@ foreach(filename "<functional>" "<xfunctional>" "<tr1/functional>" "<ext/hash_fu
 	    "
 	    HASH_FUNC_FOUND_${filename})
 	if (HASH_FUNC_FOUND_${filename})	   
-	   set (HASH_FUN_H "${filename}")
+	   set (HASH_FUN_H "<${filename}>")
 	   break()
 	endif(HASH_FUNC_FOUND_${filename}) 		
 endforeach(filename)
