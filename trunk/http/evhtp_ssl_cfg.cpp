@@ -30,6 +30,13 @@ _evhtp_ssl_get_thread_id(void) {
 	return ret; //不知道干嘛用
 }
 
+/**
+ * \param mode Determines the action that the locking function should take. When the CRYPTO_LOCK flag is set, the lock should be acquired; otherwise, it should be released.
+ * \param type The number of the lock that should be acquired or released. The number is zero-based.
+ * \param file The name of the source file requesting the locking operation to take place. only for debugging
+ * \param line The source line number requesting the locking operation to take place. only for debugging
+ *
+ */
 static void
 _evhtp_ssl_thread_lock(int mode, int type, const char * file, int line) {
 	if (type < static_cast<int>(ssl_locks.size())) {
@@ -121,7 +128,27 @@ _evhtp_ssl_get_scache_ent(SSL * ssl, unsigned char * sid, int sid_len, int * cop
     return sess;
 }
 
+struct CRYPTO_dynlock_value{
+	tbb::mutex mutex;
+};
 
+CRYPTO_dynlock_value* my_dyn_create_function(const char *file,
+int line){
+	return new CRYPTO_dynlock_value();
+}
+
+void my_dyn_lock_function(int mode, struct CRYPTO_dynlock_value
+*mutex, const char *file, int line){
+	if (mode & CRYPTO_LOCK) {
+		mutex->mutex.lock();
+	} else 
+		mutex->mutex.unlock();
+}
+
+void my_dyn_destroy_function(struct CRYPTO_dynlock_value *mutex,
+const char *file, int line){
+	delete mutex;
+}
 
 int
 evhtp_ssl_init(evhtp_s * htp, evhtp_ssl_cfg_s * cfg) {
