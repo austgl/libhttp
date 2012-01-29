@@ -11,6 +11,7 @@ StatusCodeManager::StatusCodeManager(){
 	this->status_code_init();
 }
 void StatusCodeManager::status_code_init(void) {
+  scode.set_empty_key(0);
 	 /* 100 codes */
     scode[EVHTP_RES_CONTINUE]= "Continue";
     scode[EVHTP_RES_SWITCH_PROTO]= "Switching Protocols";

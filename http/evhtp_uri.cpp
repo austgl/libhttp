@@ -4,7 +4,7 @@
 
 #include "evhtp_uri.h"
 #include "evhtp_kv.h"
-
+#include <stdlib.h> //free
 
 evhtp_uri_s::evhtp_uri_s():authority(NULL),path(NULL),fragment(NULL),query_raw(NULL),query(NULL),scheme(htp_scheme_none){
 

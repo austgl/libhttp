@@ -9,7 +9,7 @@
 #include <iostream>
 
 evhtp_callbacks_s::evhtp_callbacks_s(){
-
+  this->callbacks.set_empty_key("");
 }
 evhtp_callbacks_s::~evhtp_callbacks_s(){
 

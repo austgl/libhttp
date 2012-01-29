@@ -6,7 +6,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
+
 #include <errno.h>
 #include <sys/types.h>
 #include <stdint.h>
@@ -14,6 +14,7 @@
 #include <glog/logging.h>
 #include "htparse_imp.h"
 #include "parser_flags.h"
+#include <stdint.h>
 
 #ifndef HAVE_STRCASECMP
 #include "mystrcasecmp.h"
@@ -34,7 +35,7 @@ static int strcasecmp(const char *s1, const char *s2){
 
 
 
-htparser::htparser(): error(htparse_error_none),state(s_start),flags(0),heval(eval_hdr_val_none),type(htp_type_none),scheme(htp_scheme_none),method(htp_method_UNKNOWN),major(0),minor(0),content_len(0),bytes_read(0),status(0),status_count(0),buf_idx(0),scheme_offset(0),host_offset(0),port_offset(0),path_offset(0),args_offset(0),userdata(NULL){
+htparser::htparser(): error(htparse_error_none),state(s_start),flags(0),heval(eval_hdr_val_none),type(htp_type_none),scheme(htp_scheme_none),method(htp_method_UNKNOWN),major_(0),minor_(0),content_len(0),bytes_read(0),status(0),status_count(0),buf_idx(0),scheme_offset(0),host_offset(0),port_offset(0),path_offset(0),args_offset(0),userdata(NULL){
  memset(buf,0,sizeof(buf));
 }
 uint64_t htparser::get_bytes_read(){
@@ -174,7 +175,7 @@ str_to_uint64(char * str, size_t n, int * err) {
 
         check = value * 10 + (*str - '0');
 
-        if ((value && check <= value) || check > UINT64_MAX) {
+        if ((value && check <= value) || check > 0xffffffffffffffffUL) {
             *err = 1;
             return 0;
         }
@@ -299,7 +300,7 @@ htparser_run(htparser * p, htparse_hooks * hooks, const char * data, size_t len)
 }
 
 int            htparser::should_keep_alive(){
-	if (this->major > 0 && this->minor > 0) {
+	if (this->major_ > 0 && this->minor_ > 0) {
 		if (this->flags & parser_flag_connection_close) {
 			return 0;
 		} else {
@@ -329,16 +330,16 @@ const char   * htparser::get_methodstr(){
     return method_strmap[this->method];
 }
 void           htparser::set_major( unsigned char v){
-	this->major=v;
+	this->major_=v;
 }
 void           htparser::set_minor( unsigned char v){
-	this->minor=v;
+	this->minor_=v;
 }
 unsigned char  htparser::get_major(){
-	return this->major;
+	return this->major_;
 }
 unsigned char  htparser::get_minor(){
-	return this->minor;
+	return this->minor_;
 }
 
 unsigned int   htparser::get_status(){
@@ -762,11 +763,11 @@ size_t  htparser::run( htparse_hooks * hooks, const char * data, size_t len){
 
                     break;
                     case CR:
-                        this->minor = 9;
+                        this->minor_ = 9;
                         this->state = s_almost_done;
                         break;
                     case LF:
-                        this->minor = 9;
+                        this->minor_ = 9;
                         this->state = s_hdrline_start;
                         break;
                     case '.':
@@ -838,12 +839,12 @@ size_t  htparser::run( htparse_hooks * hooks, const char * data, size_t len){
                         this->state = s_after_slash_in_uri;
                         break;
                     case CR:
-                        this->minor = 9;
+                        this->minor_ = 9;
                         this->buf_idx           = 0;
                         this->state = s_almost_done;
                         break;
                     case LF:
-                        this->minor = 9;
+                        this->minor_ = 9;
                         this->buf_idx           = 0;
 
                         this->state = s_hdrline_start;
@@ -902,12 +903,12 @@ size_t  htparser::run( htparse_hooks * hooks, const char * data, size_t len){
                     }
                     break;
                     case CR:
-                        this->minor             = 9;
+                        this->minor_             = 9;
                         this->buf_idx           = 0;
                         this->state             = s_almost_done;
                         break;
                     case LF:
-                        this->minor             = 9;
+                        this->minor_             = 9;
                         this->buf_idx           = 0;
                         this->state             = s_hdrline_start;
                         break;
@@ -930,12 +931,12 @@ size_t  htparser::run( htparse_hooks * hooks, const char * data, size_t len){
                     case ' ':
                         break;
                     case CR:
-                        this->minor   = 9;
+                        this->minor_   = 9;
                         this->buf_idx = 0;
                         this->state   = s_almost_done;
                         break;
                     case LF:
-                        this->minor   = 9;
+                        this->minor_   = 9;
                         this->buf_idx = 0;
                         this->state   = s_hdrline_start;
                         break;
@@ -996,7 +997,7 @@ size_t  htparser::run( htparse_hooks * hooks, const char * data, size_t len){
                     return i + 1;
                 }
 
-                this->major = ch - '0';
+                this->major_ = ch - '0';
                 this->state = s_major_digit;
                 break;
             case s_major_digit:
@@ -1010,7 +1011,7 @@ size_t  htparser::run( htparse_hooks * hooks, const char * data, size_t len){
                     return i + 1;
                 }
 
-                this->major = this->major * 10 + ch - '0';
+                this->major_ = this->major_ * 10 + ch - '0';
                 break;
             case s_first_minor_digit:
                 if (ch < '0' || ch > '9') {
@@ -1018,7 +1019,7 @@ size_t  htparser::run( htparse_hooks * hooks, const char * data, size_t len){
                     return i + 1;
                 }
 
-                this->minor = ch - '0';
+                this->minor_ = ch - '0';
                 this->state = s_minor_digit;
                 break;
             case s_minor_digit:
@@ -1043,7 +1044,7 @@ size_t  htparser::run( htparse_hooks * hooks, const char * data, size_t len){
                             return i + 1;
                         }
 
-                        this->minor = this->minor * 10 + ch - '0';
+                        this->minor_ = this->minor_ * 10 + ch - '0';
                         break;
                 } /* switch */
                 break;

@@ -1,7 +1,7 @@
 ﻿#include <gtest/gtest.h>
 #include <glog/logging.h>
 #include "htparse.h"
-
+#include <memory>
 
 class HtParseTest : public ::testing::Test {
  protected:

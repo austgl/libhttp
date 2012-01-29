@@ -4,6 +4,8 @@
 
 #include <ctype.h>
 #include <locale.h>
+
+#ifndef HAVE_STRCASECMP
 namespace scm{
 	int
 		strcasecmp_l(const char *s1, const char *s2, _locale_t locale)
@@ -46,3 +48,4 @@ namespace scm{
 		return strncasecmp_l(s1, s2, n, _get_current_locale());
 	}
 }
+#endif

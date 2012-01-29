@@ -3,3 +3,4 @@
 #define OS_TYPE_@CMAKE_SYSTEM_NAME@ 1
 
 #cmakedefine HAVE_STRCASECMP
+#cmakedefine HAVE_SNPRINTF

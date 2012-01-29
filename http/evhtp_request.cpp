@@ -30,7 +30,7 @@ evhtp_request_s::evhtp_request_s(evhtp_connection_s * c){
 	this->chunked=0;
 	this->cb=NULL;
 	this->cbarg=NULL;
-	this->error=NULL;
+	this->error=0;
 }
 
 evhtp_request_s::~evhtp_request_s(){
