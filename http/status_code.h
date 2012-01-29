@@ -3,7 +3,8 @@
 
 #include <stdint.h>
 #include <tbb/atomic.h>
-#include <unordered_map>
+#include <google/dense_hash_map>
+
 
 class StatusCodeManager{		
 public:
@@ -22,6 +23,6 @@ protected:
 private:
 	void status_code_init();
 	static tbb::atomic<StatusCodeManager*> value;
-	std::tr1::unordered_map<uint16_t,const char *> scode;
+	google::dense_hash_map<uint16_t,const char *> scode;
 };
 
