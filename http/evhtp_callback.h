@@ -3,7 +3,9 @@
 #include "evhtp_callback_type.h"
 
 
-#include <onigposix.h>
+#include <stdint.h>
+#include <unicode/unistr.h>
+#include <unicode/regex.h>
 
 class evhtp_hooks_s;
 
@@ -28,12 +30,7 @@ public:
     evhtp_callback_type type;            /**< the type of callback (regex|path) */
     evhtp_callback_cb   cb;              /**< the actual callback function */
     void              * cbarg;           /**< user-defind arguments passed to the cb */
-    evhtp_hooks_s     * hooks;           /**< per-callback hooks */
 
-    union {
-        char    * path;
-        regex_t * regex;
-    } val;
-
-    HttpCallback * next;
+    RegexMatcher* matcher;
+	UnicodeString path;
 };

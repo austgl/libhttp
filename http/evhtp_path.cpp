@@ -20,7 +20,7 @@ my_strndup(const char *str, size_t n)
 	return (copy);
 }
 
-HttpPath::HttpPath(const char * data, size_t len):full(NULL),match_start(NULL),match_end(NULL),matched_soff(0),matched_eoff(0){
+HttpPath::HttpPath(const char * data, size_t len){
     const char   * data_end = (const char *)(data + len);
     char         * path     = NULL;
     char         * file     = NULL;
@@ -88,7 +88,7 @@ HttpPath::HttpPath(const char * data, size_t len):full(NULL),match_start(NULL),m
     }
 
     if (len != 0) {
-        this->full = my_strndup(data, len);
+        this->full = icu::UnicodeString::fromUTF8(icu::StringPiece(data,len));
     }
 
     this->path = path;
@@ -96,23 +96,11 @@ HttpPath::HttpPath(const char * data, size_t len):full(NULL),match_start(NULL),m
 }
 
 HttpPath::~HttpPath(){
-	if (this->full) {
-		free(this->full);
-	}
-
 	if (this->path) {
 		free(this->path);
 	}
 
 	if (this->file) {
 		free(this->file);
-	}
-
-	if (this->match_start) {
-		free(this->match_start);
-	}
-
-	if (this->match_end) {
-		free(this->match_end);
 	}
 }

@@ -237,93 +237,7 @@ _evhtp_headers_start_hook(evhtp_request_t * request) {
 
 
 
-/**
- * @brief attempts to find a callback via hashing the path
- *
- * @param callbacks a evhtp_callbacks_t * structure
- * @param path a null terminated string to be hashed and searched
- *
- * @return evhtp_callback_t * if found, NULL if not found.
- */
-static evhtp_callback_t *
-_evhtp_callback_hash_find(evhtp_callbacks_t * callbacks, const char * path) {
-	
-}
 
-/**
- * @brief iterate through a tailq of callback hooks defined as a regex until a
- *        match is found.
- *
- * @param callbacks a evhtp_callbacks_t structure
- * @param path a string containing a path to be matched against
- * @param soff a pointer to an integer which will be filled with the start
- *             offset in the string if matched.
- * @param eoff a pointer to an integer which will be filled with the end
- *             offset in the string if matched
- *
- * @return an evhtp_callback_t function on success, otherwise NULL
- */
-static evhtp_callback_t *
-_evhtp_callback_regex_find(evhtp_callbacks_t * callbacks, const char * path,
-                           unsigned int * soff, unsigned int * eoff) {   
-
-    if (path == NULL) {
-        return NULL;
-    }
-
-	
-
-    return NULL;
-}
-
-/**
- * @brief A wrapper around both hash and regex hook lookups
- *
- * @param callbacks
- * @param path
- * @param start_offset
- * @param end_offset
- *
- * @return evhtp_callback_t on success, otherwise NULL
- */
-static evhtp_callback_t *
-_evhtp_callback_find(evhtp_callbacks_t * callbacks,
-                     const char        * path,
-                     unsigned int      * start_offset,
-                     unsigned int      * end_offset) {
-
-    if (callbacks == NULL) {
-        return NULL;
-    }
-
-	{
-		auto iter=callbacks->callbacks.find(path);
-		if(iter!=callbacks->callbacks.end()){
-			*start_offset = 0;
-			*end_offset   = (unsigned int)strlen(path);
-			return iter->second;
-		}
-	}
-	{
-		auto iter=std::find_if(callbacks->regex_callbacks.begin(),callbacks->regex_callbacks.end(),[=] (evhtp_callback_t * callback )->bool {
-			regmatch_t pmatch[28];
-			if (callback->type == evhtp_callback_type_regex) {
-				if (regexec(callback->val.regex, path, callback->val.regex->re_nsub + 1, pmatch, 0) == 0) {
-					*start_offset = (unsigned int)pmatch[callback->val.regex->re_nsub].rm_so;
-					*end_offset = (unsigned int)pmatch[callback->val.regex->re_nsub].rm_eo;
-					return true;
-				}
-			}
-			return false;
-		});
-		if(iter!=callbacks->regex_callbacks.end()){
-			return *iter;
-		}
-	}
-
-
-    return NULL;
-}
 
 
 
@@ -415,14 +329,12 @@ int MyHtparseHooks::hdr_val(IHTParser * p, const char * data, size_t len) {
 
 int MyHtparseHooks::path(IHTParser * p, const char * data, size_t len) {
    evhtp_connection_t * c = reinterpret_cast<evhtp_connection_t*>(p->get_userdata());
-    evhtp_hooks_t      * hooks    = NULL;
     evhtp_callback_t   * callback = NULL;
     evhtp_callback_cb    cb       = NULL;
     
     
     void               * cbarg    = NULL;
-    char               * match_start;
-    char               * match_end;
+
 
 	HttpUri  * uri=new  HttpUri();    
 	HttpPath * path=new HttpPath(data, len);
@@ -431,52 +343,29 @@ int MyHtparseHooks::path(IHTParser * p, const char * data, size_t len) {
 		tbb::mutex::scoped_lock l(c->htp->lock);
 
 
-		if ((callback = _evhtp_callback_find(&c->htp->callbacks, path->path,
-			&path->matched_soff, &path->matched_eoff))) {
+		if ((callback = c->htp->callbacks.find(path->path) )) {
 				/* matched a callback using *just* the path (/a/b/c/) */
 				cb    = callback->cb;
 				cbarg = callback->cbarg;
-				hooks = callback->hooks;
-		} else if ((callback = _evhtp_callback_find(&c->htp->callbacks, path->full,
-			&path->matched_soff, &path->matched_eoff))) {
+		} else if ((callback = c->htp->callbacks.find(path->full))) {
 				/* matched a callback using both path and file (/a/b/c/d) */
 				cb    = callback->cb;
-				cbarg = callback->cbarg;
-				hooks = callback->hooks;
+				cbarg = callback->cbarg;				
 		} else {
 			/* no callbacks found for either case, use defaults */
 			cb    = c->htp->defaults.cb;
 			cbarg = c->htp->defaults.cbarg;
 
-			path->matched_soff = 0;
-			path->matched_eoff = (unsigned int)strlen(path->full);
-		}
+     	}
 
 	}
 
-    match_start = (char*)calloc(strlen(path->full) + 1, 1);
-    match_end   = (char*)calloc(strlen(path->full) + 1, 1);
 
 
-    memcpy(match_start,
-           (void *)(path->full + path->matched_soff),
-           path->matched_eoff);
-
-    memcpy(match_end,
-           (void *)(path->full + path->matched_eoff),
-           strlen(path->full) - path->matched_eoff);
-
-    path->match_start = match_start;
-    path->match_end   = match_end;
 
     uri->path         = path;
 	uri->scheme       = p->get_scheme();
 
-    if (hooks != NULL) {
-        c->request->hooks = (evhtp_hooks_t*)malloc(sizeof(evhtp_hooks_t));
-
-        memcpy(c->request->hooks, hooks, sizeof(evhtp_hooks_t));
-    }
 
     c->request->uri    = uri;
     c->request->cb     = cb;
@@ -1605,12 +1494,11 @@ int evhtp_bind_socket(evhtp * htp, const char * baddr, uint16_t port, int backlo
   return evhtp_bind_sockaddr(htp, sa, sin_len, backlog);
 } /* evhtp_bind_socket */
 
-
 int evhtp_callbacks_add_callback(evhtp_callbacks_t * cbs, evhtp_callback_t * cb) {
 
     switch (cb->type) {
         case evhtp_callback_type_hash:
-			cbs->callbacks[cb->val.path]=cb;            
+			cbs->callbacks[cb->path]=cb;            
             break;
         case evhtp_callback_type_regex:
 			cbs->regex_callbacks.push_back(cb);

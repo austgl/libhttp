@@ -17,7 +17,7 @@ SET(TBB_LIB tbb)
 SET(SOCKET_LIB )
 SET(EVENT_LIB "-L/usr/local/lib/event2 -levent_openssl -levent_core -Wl,-rpath=/usr/local/lib/event2")
 endif()
-
+SET(ICU_LIBRARIES icuuc icuio icuin)
 
 ADD_LIBRARY(minihttp STATIC ${SRC_LIST})
 
@@ -33,7 +33,7 @@ ADD_TEST(htparse_unitest ${CMAKE_CURRENT_BINARY_DIR}/htparse_unitest)
 
 add_executable (simple_server simple_server_unitest.cpp)
 target_link_libraries (simple_server  minihttp gtest)
-target_link_libraries (simple_server  ${GLOG_LIB} ${EVENT_LIB} ${OPENSSL_LIBRARIES} onig ${SOCKET_LIB})
+target_link_libraries (simple_server  ${GLOG_LIB} ${EVENT_LIB} ${OPENSSL_LIBRARIES} ${ICU_LIBRARIES} ${SOCKET_LIB})
 target_link_libraries (simple_server  debug ${TBB_DEBUG_LIB})
 
 
