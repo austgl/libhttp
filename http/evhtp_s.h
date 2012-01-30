@@ -38,6 +38,10 @@ public:
 
     struct timeval * recv_timeo;
     struct timeval * send_timeo;
+
+	evhtp_callback_t * set_cb(const icu::UnicodeString& path, evhtp_callback_cb cb, void * arg);
+	evhtp_callback_t * set_regex_cb(const icu::UnicodeString& pattern, evhtp_callback_cb cb, void * arg);
+	int bind_socket(const char * baddr, uint16_t port, int backlog);
 };
 
 /*

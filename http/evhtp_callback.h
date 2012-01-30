@@ -25,7 +25,7 @@ class evhtp_hooks_s;
  */
 class HttpCallback {
 public:
-	HttpCallback(const char * path, evhtp_callback_type type, evhtp_callback_cb cb, void * arg);
+	HttpCallback(const icu::UnicodeString& path, evhtp_callback_type type, evhtp_callback_cb cb, void * arg);
 	virtual ~HttpCallback();
     evhtp_callback_type type;            /**< the type of callback (regex|path) */
     evhtp_callback_cb   cb;              /**< the actual callback function */

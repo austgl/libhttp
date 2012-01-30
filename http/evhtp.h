@@ -73,30 +73,6 @@ void evhtp_set_pre_accept_cb(evhtp * htp, evhtp_pre_accept_cb, void * arg);
 void evhtp_set_post_accept_cb(evhtp * htp, evhtp_post_accept_cb, void * arg);
 
 
-/**
- * @brief sets a callback to be executed on a specific path
- *
- * @param htp the initialized evhtp_t
- * @param path the path to match
- * @param cb the function to be executed
- * @param arg user-defined argument passed to the callback
- *
- * @return evhtp_callback_t * on success, NULL on error.
- */
-evhtp_callback_t * evhtp_set_cb(evhtp * htp, const char * path, evhtp_callback_cb cb, void * arg);
-
-
-/**
- * @brief sets a callback to be executed based on a regex pattern
- *
- * @param htp the initialized evhtp_t
- * @param pattern a POSIX compat regular expression
- * @param cb the function to be executed
- * @param arg user-defined argument passed to the callback
- *
- * @return evhtp_callback_t * on success, NULL on error
- */
-evhtp_callback_t * evhtp_set_regex_cb(evhtp * htp, const char * pattern, evhtp_callback_cb cb, void * arg);
 
 
 /**
@@ -140,8 +116,7 @@ evhtp_callback_t * evhtp_set_regex_cb(evhtp * htp, const char * pattern, evhtp_c
  */
 int  evhtp_set_hook(evhtp_hooks_t ** hooks, evhtp_hook_type type, void * cb, void * arg);
 
-int  evhtp_bind_socket(evhtp * htp, const char * addr, uint16_t port, int backlog);
-int  evhtp_bind_sockaddr(evhtp * htp, struct sockaddr *, size_t sin_len, int backlog);
+
 
 //int  evhtp_use_threads(evhtp_t * htp, evhtp_thread_init_cb init_cb, int nthreads, void * arg);
 
@@ -277,16 +252,6 @@ void       evhtp_request_pause(evhtp_request_t * request);
 void       evhtp_request_resume(evhtp_request_t * request);
 
 
-
-/**
- * @brief returns the underlying evhtp_connection_t structure from a request
- *
- * @param request
- *
- * @return evhtp_connection_t on success, otherwise NULL
- */
-evhtp_connection_t * evhtp_request_get_connection(evhtp_request_t * request);
-
 /**
  * @brief Sets the connections underlying bufferevent
  *
@@ -302,25 +267,5 @@ void evhtp_connection_set_bev(evhtp_connection_t * conn, evbev_t * bev);
  * @param bev
  */
 void evhtp_request_set_bev(evhtp_request_t * request, evbev_t * bev);
-
-
-/**
- * @brief returns the underlying connections bufferevent
- *
- * @param conn
- *
- * @return bufferevent on success, otherwise NULL
- */
-evbev_t * evhtp_connection_get_bev(evhtp_connection_t * conn);
-
-/**
- * @brief returns the underlying requests bufferevent
- *
- * @param request
- *
- * @return bufferevent on success, otherwise NULL
- */
-evbev_t * evhtp_request_get_bev(evhtp_request_t * request);
-
 
 

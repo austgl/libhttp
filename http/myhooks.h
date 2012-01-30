@@ -39,7 +39,7 @@ public:
                                                   HOOK_ARGS(request, hook_name));             \
         }                                                                                     \
                                                                                               \
-        if (HOOK_AVAIL(evhtp_request_get_connection(request), hook_name)) {                   \
+        if (HOOK_AVAIL(request->conn, hook_name)) {                   \
             return HOOK_FUNC(request->conn, hook_name) (request, __VA_ARGS__,                 \
                                                         HOOK_ARGS(request->conn, hook_name)); \
         }                                                                                     \
