@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8) 
-add_definitions(-DUNICODE -D_UNICODE -DHAVE_CONFIG_H)
+add_definitions(-DUNICODE -D_UNICODE -DHAVE_CONFIG_H -D_CRT_SECURE_NO_WARNINGS)
 
 set(SRC_LIST MyHtparseHooks.cpp MyHtparseHooks.h cminit.h evhtp.cpp evhtp.h evhtp_authority.h evhtp_callback.h evhtp_callback_type.h evhtp_callbacks.cpp evhtp_callbacks.h evhtp_connection.cpp evhtp_connection.h evhtp_defaults.h evhtp_hook_type.h evhtp_kv.h evhtp_path.cpp evhtp_path.h evhtp_proto.h evhtp_request.cpp evhtp_request.h evhtp_s.cpp evhtp_s.h evhtp_ssl_cfg.cpp evhtp_ssl_cfg.h evhtp_ssl_scache_type.h evhtp_types.h evhtp_uri.cpp evhtp_uri.h htp_method.h htp_scheme.h htp_type.h htparse.cpp htparse.h htparse_hooks.h htparse_imp.h  htpparse_error.h http_status_codes.h myhooks.h myqueue.h mystrcasecmp.cpp mystrcasecmp.h parser_flags.h parser_state.h  status_code.cpp status_code.h ) #evthr.cpp evthr.h 
 include_directories(${PROJECT_BINARY_DIR}  ${OPENSSL_INCLUDE_DIR})
