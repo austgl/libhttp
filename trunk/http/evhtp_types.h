@@ -14,7 +14,7 @@ typedef struct evhtp_kvs_s        evhtp_kvs_t;
 #define evhtp_headers_t evhtp_kvs_s
 #define evhtp_query_t   evhtp_kvs_s
 
-class evhtp_request_s;
+class EvHttpRequest;
 
 
 
@@ -45,21 +45,16 @@ typedef struct bufferevent        evbev_t;
 
 
 typedef struct event_base evbase_t;
-typedef void                      evthr_t;
-typedef void                      evthr_pool_t;
 
 
-typedef class evhtp_s            evhtp_t;
+
 typedef class evhtp_defaults_s   evhtp_defaults_t;
 typedef class evhtp_callbacks_s  evhtp_callbacks_t;
 typedef class evhtp_callback_s   evhtp_callback_t;
 
-typedef class evhtp_uri_s        evhtp_uri_t;
-typedef struct evhtp_path_s       evhtp_path_t;
-typedef struct evhtp_authority_s  evhtp_authority_t;
-typedef class evhtp_request_s    evhtp_request_t;
+typedef class EvHttpRequest    evhtp_request_t;
 typedef class evhtp_hooks_s      evhtp_hooks_t;
-typedef class evhtp_connection_s evhtp_connection_t;
-typedef class evhtp_ssl_cfg_s    evhtp_ssl_cfg_t;
+typedef class evhtp_connection evhtp_connection_t;
+typedef class evhtp_ssl_cfg    evhtp_ssl_cfg_t;
 typedef uint16_t                  evhtp_res;
 typedef uint8_t                   evhtp_error_flags;

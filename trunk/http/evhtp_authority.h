@@ -3,7 +3,8 @@
 /**
  * @brief structure which represents authority information in a URI
  */
-struct evhtp_authority_s {
+class HttpAuthority {
+public:
     char   * username;                /**< the username in URI (scheme://USER:.. */
     char   * password;                /**< the password in URI (scheme://...:PASS.. */
     char   * hostname;                /**< hostname if present in URI */

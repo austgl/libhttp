@@ -71,12 +71,12 @@ int evhtp_ssl_use_threads(void) {
 
 static void
 _evhtp_ssl_delete_scache_ent(SSL_CTX * ctx, SSL_SESSION * sess) {
-    evhtp_s         * htp;
-    evhtp_ssl_cfg_s * cfg;
+    evhtp         * htp;
+    evhtp_ssl_cfg * cfg;
     unsigned char   * sid;
     unsigned int      slen;
 
-    htp  = (evhtp_s *)SSL_CTX_get_app_data(ctx);
+    htp  = (evhtp *)SSL_CTX_get_app_data(ctx);
     cfg  = htp->ssl_cfg;
 
     sid  = sess->session_id;
@@ -151,7 +151,7 @@ const char *file, int line){
 }
 
 int
-evhtp_ssl_init(evhtp_s * htp, evhtp_ssl_cfg_s * cfg) {
+evhtp_ssl_init(evhtp * htp, evhtp_ssl_cfg * cfg) {
     long                  cache_mode;
     evhtp_ssl_scache_init init_cb = NULL;
     evhtp_ssl_scache_add  add_cb  = NULL;

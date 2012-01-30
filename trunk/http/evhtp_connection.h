@@ -4,16 +4,16 @@
 #include <event2/bufferevent.h>
 #include <openssl/ssl.h>
 
-class evhtp_s;
+class evhtp;
 class evhtp_hooks_s;
 class IHTParser;
-class evhtp_request_s;
+class EvHttpRequest;
 
-class evhtp_connection_s {
+class evhtp_connection {
 public:
-	evhtp_connection_s(evhtp_s * htp, int sock);
-	~evhtp_connection_s();
-    evhtp_s         * htp;
+	evhtp_connection(evhtp * htp, int sock);
+	~evhtp_connection();
+    evhtp         * htp;
     event_base        * evbase;
     bufferevent         * bev;
     //evthr_t         * thread;
@@ -26,5 +26,5 @@ public:
     int               error;
 
 	//在_evhtp_request_parser_start时初始化
-    evhtp_request_s * request;
+    EvHttpRequest * request;
 };

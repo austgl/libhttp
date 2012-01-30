@@ -9,7 +9,7 @@
 #include "evhtp_uri.h"
 
 
-evhtp_request_s::evhtp_request_s(evhtp_connection_s * c){
+EvHttpRequest::EvHttpRequest(evhtp_connection * c){
     this->conn        = c;
     this->htp         = c->htp;
     this->status      = EVHTP_RES_OK;
@@ -33,7 +33,7 @@ evhtp_request_s::evhtp_request_s(evhtp_connection_s * c){
 	this->error=0;
 }
 
-evhtp_request_s::~evhtp_request_s(){
+EvHttpRequest::~EvHttpRequest(){
 	HOOK_REQUEST_RUN_NARGS_NO_RETURN(this, on_request_fini);
     delete this->uri;
 

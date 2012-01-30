@@ -20,7 +20,7 @@ my_strndup(const char *str, size_t n)
 	return (copy);
 }
 
-evhtp_path_s::evhtp_path_s(const char * data, size_t len):full(NULL),match_start(NULL),match_end(NULL),matched_soff(0),matched_eoff(0){
+HttpPath::HttpPath(const char * data, size_t len):full(NULL),match_start(NULL),match_end(NULL),matched_soff(0),matched_eoff(0){
     const char   * data_end = (const char *)(data + len);
     char         * path     = NULL;
     char         * file     = NULL;
@@ -95,7 +95,7 @@ evhtp_path_s::evhtp_path_s(const char * data, size_t len):full(NULL),match_start
     this->file = file;
 }
 
-evhtp_path_s::~evhtp_path_s(){
+HttpPath::~HttpPath(){
 	if (this->full) {
 		free(this->full);
 	}

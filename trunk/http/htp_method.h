@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 
-enum htp_method {
+enum HttpMethod {
     htp_method_GET = 0,
     htp_method_HEAD,
     htp_method_POST,

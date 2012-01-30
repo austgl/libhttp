@@ -8,26 +8,26 @@
 #include <openssl/ssl.h>
 #include <tbb/mutex.h>
 
-class evhtp_ssl_cfg_s;
+class evhtp_ssl_cfg;
 
 /**
  * @brief main structure containing all configuration information
  */
-class evhtp_s {
+class evhtp {
 public:
 	/**
 	* @param evbase the initialized event base
 	* @param arg user-defined argument which is evhtp_t specific
 	*/
-	evhtp_s(event_base * evbase, void * arg);
-	virtual ~evhtp_s();
+	evhtp(event_base * evbase, void * arg);
+	virtual ~evhtp();
     event_base * evbase;            /**< the initialized event_base */
     evconnlistener * server;            /**< the libevent listener struct */
     char     * server_name;       /**< the name included in Host: responses */
     void     * arg;               /**< user-defined evhtp_t specific arguments */
 
     SSL_CTX * ssl_ctx;    /**< if ssl enabled, this is the servers CTX */
-    evhtp_ssl_cfg_s * ssl_cfg;
+    evhtp_ssl_cfg * ssl_cfg;
 
 	//TODO:
     //evthr_pool_t      * thr_pool; /**< connection threadpool */

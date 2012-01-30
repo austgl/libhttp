@@ -9,7 +9,7 @@
 #include "evhtp.h"
 #include "evhtp_request.h"
 
-evhtp_connection_s::evhtp_connection_s(evhtp_s * htp, int sock) {
+evhtp_connection::evhtp_connection(evhtp * htp, int sock) {
     this->evbase    = NULL;
     this->bev       = NULL;
     //connection->thread    = NULL;
@@ -30,7 +30,7 @@ evhtp_connection_s::evhtp_connection_s(evhtp_s * htp, int sock) {
 }
 
 
-evhtp_connection_s::~evhtp_connection_s(){
+evhtp_connection::~evhtp_connection(){
 	delete this->request;
 
     if (this->hooks && this->hooks->on_connection_fini) {

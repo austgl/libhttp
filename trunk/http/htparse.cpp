@@ -243,7 +243,7 @@ int  htparser::should_keep_alive(){
 htp_scheme     htparser::get_scheme(){
 	return this->scheme;
 }
-htp_method     htparser::get_method(){
+HttpMethod     htparser::get_method(){
 	return this->method;
 }
 const char   * htparser::get_methodstr(){
@@ -1488,7 +1488,7 @@ hdrline_start:
 }
 
 
-void           htparser::init( htp_type t){	
+void           htparser::init( HttpMessageType t){	
 	this->error = htparse_error_none;
 	this->type  = t;
 }

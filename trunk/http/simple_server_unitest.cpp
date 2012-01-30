@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 	event_enable_debug_mode();
 
     evbase_t * evbase = event_base_new();
-    evhtp_t  * htp    = new evhtp_s(evbase, NULL);
+    evhtp  * htp    = new evhtp(evbase, NULL);
 
     evhtp_set_cb(htp, "/test", testcb, NULL);
     evhtp_bind_socket(htp, "0.0.0.0", 8388, 1024);
