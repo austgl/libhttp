@@ -209,104 +209,28 @@ static  int64_t _str_to_ssize_t(char * str, size_t n) {
     return value;
 }*/
 
-htpparse_error
-htparser_get_error(htparser * p) {
-	return p->get_error();
-}
 
-const char *
-htparser_get_strerror(htparser * p) {
-	return p->get_strerror();    
-}
-
-unsigned int
-htparser_get_status(htparser * p) {
-	return p->get_status();
-}
-
-int
-htparser_should_keep_alive(htparser * p) {
-	return p->should_keep_alive();
-}
-
-htp_scheme
-htparser_get_scheme(htparser * p) {
-	return p->get_scheme();
-}
-
-htp_method
-htparser_get_method(htparser * p) {
-	return p->get_method();
-}
-
-const char *
-htparser_get_methodstr(htparser * p) {
-	return p->get_methodstr();
-}
-
-void
-htparser_set_major(htparser * p, unsigned char major) {
-	p->set_major(major);    
-}
-
-void
-htparser_set_minor(htparser * p, unsigned char minor) {
-	p->set_minor(minor);
-}
-
-unsigned char
-htparser_get_major(htparser * p) {
-	return p->get_major();
-}
-
-unsigned char
-htparser_get_minor(htparser * p) {
-	return p->get_minor();
-}
-
-void *
-htparser_get_userdata(htparser * p) {
-	return p->get_userdata();
-}
-
-void
-htparser_set_userdata(htparser * p, void * ud) {
-	p->set_userdata(ud);    
-}
-
-uint64_t
-htparser_get_content_length(htparser * p) {
-	return p->get_content_length();    
-}
-
-uint64_t
-htparser_get_bytes_read(htparser * p) {
-    return p->get_bytes_read();
-}
-
-void
-htparser_init(htparser * p, htp_type type) {
-	return p->init(type);
-}
 
 IHTParser *
 htparser_new(void) {
     return new htparser();
 }
 
-size_t
-htparser_run(htparser * p, htparse_hooks * hooks, const char * data, size_t len) {
-	return p->run(hooks,data,len);
-}
 
-int            htparser::should_keep_alive(){
+
+int  htparser::should_keep_alive(){
 	if (this->major_ > 0 && this->minor_ > 0) {
+		//如果是HTTP/1.0，那么默认是keep alive。除非header里面写了close。
 		if (this->flags & parser_flag_connection_close) {
 			return 0;
 		} else {
 			return 1;
 		}
 	} else {
+		//如果是HTTP/1.1，那么默认是close。除非header里面写了keepalive。
+		//rfc 2616，8.1.2.1 "Negotiation" 
+		//"An HTTP/1.1 server MAY assume that a HTTP/1.1 client intends to maintain a persistent connection"
+		//" unless a Connection header including the connection-token "close" was sent in the request"
 		if (this->flags & parser_flag_connection_keep_alive) {
 			return 1;
 		} else {
@@ -1254,6 +1178,10 @@ hdrline_start:
 
                                 break;
                             case eval_hdr_val_connection:
+								//目前只parse 3种:
+								//"Keep-Alive","keep-alive"
+								//"close"
+								//"Upgrade","upgrade"
                                 switch (this->buf[0]) {
                                     case 'K':
                                     case 'k':
@@ -1265,6 +1193,12 @@ hdrline_start:
                                     case 'c':
                                         if (_str5cmp(this->buf, 'c', 'l', 'o', 's', 'e')) {
                                             this->flags |= parser_flag_connection_close;
+                                        }
+                                        break;
+									case 'U':
+									case 'u':
+                                        if (_str6cmp(this->buf+1, 'p', 'g', 'r', 'a', 'd','e')) {
+                                            this->flags |= parser_flag_connection_upgrade;
                                         }
                                         break;
                                 }
