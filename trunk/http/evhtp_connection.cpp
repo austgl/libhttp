@@ -23,7 +23,7 @@ evhtp_connection::evhtp_connection(evhtp * htp, int sock) {
     this->parser    = htparser_new();
 
 	if(this->parser==NULL)
-		throw new std::runtime_error("create parser fail");
+		throw std::runtime_error("create parser fail");
 
 	this->parser->init(htp_type_request);
 	this->parser->set_userdata(this);

@@ -163,42 +163,9 @@ void evhtp_send_reply_chunk(evhtp_request_t * request, evbuf_t * buf);
 void evhtp_send_reply_chunk_end(evhtp_request_t * request);
 
 
-/**
- * @brief creates a new evhtp_callbacks_t structure
- *
- * this structure is used to store all known
- * callbacks for a request.
- *
- * @param buckets the number of buckets to allocate for the
- *        path type hash.
- *
- * @return an evhtp_callbacks_t structure
- */
-evhtp_callbacks_t * evhtp_callbacks_new(unsigned int buckets);
-void                evhtp_callbacks_free(evhtp_callbacks_t * callbacks);
 
 
-/**
- * @brief creates a new evhtp_callback_t structure.
- *
- * All callbacks are stored in this structure
- * which define what the final function to be
- * called after all parsing is done. A callback
- * can be either a static string or a regular
- * expression.
- *
- * @param path can either be a static path (/path/to/resource/) or
- *        a POSIX compatible regular expression (^/resource/(.*))
- * @param type informs the function what type of of information is
- *        is contained within the path argument. This can either be
- *        callback_type_path, or callback_type_regex.
- * @param cb the callback function to be invoked
- * @param arg optional argument which is passed when the callback is executed.
- *
- * @return 0 on success, -1 on error.
- */
-evhtp_callback_t * evhtp_callback_new(const char * path, evhtp_callback_type type, evhtp_callback_cb cb, void * arg);
-void               evhtp_callback_free(evhtp_callback_t * callback);
+
 
 
 /**

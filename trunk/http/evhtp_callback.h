@@ -21,8 +21,10 @@ class evhtp_hooks_s;
  * hooks using the same rules.
  *
  */
-class evhtp_callback_s {
+class HttpCallback {
 public:
+	HttpCallback(const char * path, evhtp_callback_type type, evhtp_callback_cb cb, void * arg);
+	virtual ~HttpCallback();
     evhtp_callback_type type;            /**< the type of callback (regex|path) */
     evhtp_callback_cb   cb;              /**< the actual callback function */
     void              * cbarg;           /**< user-defind arguments passed to the cb */
@@ -33,5 +35,5 @@ public:
         regex_t * regex;
     } val;
 
-    evhtp_callback_s * next;
+    HttpCallback * next;
 };

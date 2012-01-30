@@ -1606,68 +1606,7 @@ int evhtp_bind_socket(evhtp * htp, const char * baddr, uint16_t port, int backlo
 } /* evhtp_bind_socket */
 
 
-
-
-
-evhtp_callback_t *
-evhtp_callback_new(const char * path, evhtp_callback_type type, evhtp_callback_cb cb, void * arg) {
-    evhtp_callback_t * hcb;
-
-    if (!(hcb = (evhtp_callback_t*)calloc(sizeof(evhtp_callback_t), 1))) {
-        return NULL;
-    }
-
-    hcb->type  = type;
-    hcb->cb    = cb;
-    hcb->cbarg = arg;
-
-    switch (type) {
-        case evhtp_callback_type_hash:
-            hcb->val.path  = strdup(path);
-            break;
-        case evhtp_callback_type_regex:
-            hcb->val.regex = (regex_t*)malloc(sizeof(regex_t));
-
-            if (regcomp(hcb->val.regex, (char *)path, REG_EXTENDED) != 0) {
-                free(hcb->val.regex);
-                free(hcb);
-                return NULL;
-            }
-            break;
-        default:
-            free(hcb);
-            return NULL;
-    }
-
-    return hcb;
-}
-
-void
-evhtp_callback_free(evhtp_callback_t * callback) {
-    if (callback == NULL) {
-        return;
-    }
-
-    switch (callback->type) {
-        case evhtp_callback_type_hash:
-            if (callback->val.path) {
-                free(callback->val.path);
-            }
-            break;
-        case evhtp_callback_type_regex:
-            if (callback->val.regex) {
-                regfree(callback->val.regex);
-            }
-            break;
-    }
-
-    free(callback);
-
-    return;
-}
-
-int
-evhtp_callbacks_add_callback(evhtp_callbacks_t * cbs, evhtp_callback_t * cb) {
+int evhtp_callbacks_add_callback(evhtp_callbacks_t * cbs, evhtp_callback_t * cb) {
 
     switch (cb->type) {
         case evhtp_callback_type_hash:
@@ -1751,12 +1690,12 @@ evhtp_set_cb(evhtp * htp, const char * path, evhtp_callback_cb cb, void * arg) {
 		evhtp::mylocktype::scoped_lock l(htp->lock);
 
 
-		if (!(hcb = evhtp_callback_new(path, evhtp_callback_type_hash, cb, arg))) {        
+		if (!(hcb = new HttpCallback(path, evhtp_callback_type_hash, cb, arg))) {        
 			return NULL;
 		}
 
 		if (evhtp_callbacks_add_callback(&htp->callbacks, hcb)) {
-			evhtp_callback_free(hcb);
+			delete(hcb);
 			return NULL;
 		}
 	}
@@ -1782,14 +1721,13 @@ evhtp_set_regex_cb(evhtp * htp, const char * pattern, evhtp_callback_cb cb, void
     {
 		evhtp::mylocktype::scoped_lock l(htp->lock);
 
-    if (!(hcb = evhtp_callback_new(pattern, evhtp_callback_type_regex, cb, arg))) {
+    if (!(hcb = new HttpCallback(pattern, evhtp_callback_type_regex, cb, arg))) {
 
         return NULL;
     }
 
     if (evhtp_callbacks_add_callback(&htp->callbacks, hcb)) {
-        evhtp_callback_free(hcb);
-
+        delete(hcb);
         return NULL;
     }
 
