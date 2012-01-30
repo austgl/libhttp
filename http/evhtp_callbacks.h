@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class evhtp_callback_s;
+class HttpCallback;
 #include <google/dense_hash_map>
 #include <list>
 #include <functional>
@@ -43,7 +43,7 @@ class evhtp_callbacks_s {
 public:
 	evhtp_callbacks_s();
 	virtual ~evhtp_callbacks_s();
-	google::dense_hash_map<std::string,evhtp_callback_s*,HashString,eqstr> callbacks; /**< hash of path callbacks */    
-    std::list<evhtp_callback_s*>   regex_callbacks; /**< list of regex callbacks */
+	google::dense_hash_map<std::string,HttpCallback*,HashString,eqstr> callbacks; /**< hash of path callbacks */    
+    std::list<HttpCallback*>   regex_callbacks; /**< list of regex callbacks */
 
 };

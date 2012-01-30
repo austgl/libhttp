@@ -50,7 +50,7 @@ typedef struct event_base evbase_t;
 
 typedef class evhtp_defaults_s   evhtp_defaults_t;
 typedef class evhtp_callbacks_s  evhtp_callbacks_t;
-typedef class evhtp_callback_s   evhtp_callback_t;
+typedef class HttpCallback   evhtp_callback_t;
 
 typedef class EvHttpRequest    evhtp_request_t;
 typedef class evhtp_hooks_s      evhtp_hooks_t;
