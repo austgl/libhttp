@@ -5,6 +5,7 @@ set (VERSION_MAJOR 1)
 set (VERSION_MINOR 0)
 find_package(OpenSSL REQUIRED)
 find_package (Threads)
+
 include (CheckFunctionExists)
 include (CheckIncludeFiles)
 include (CheckIncludeFileCXX)

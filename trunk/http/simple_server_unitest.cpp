@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
     evbase_t * evbase = event_base_new();
     evhtp  * htp    = new evhtp(evbase, NULL);
 
-    evhtp_set_cb(htp, "/test", testcb, NULL);
+    evhtp_set_regex_cb(htp, "/([a-z]+)/test", testcb, NULL);
     evhtp_bind_socket(htp, "0.0.0.0", 8388, 1024);
     event_base_loop(evbase, 0);
 	return 0;

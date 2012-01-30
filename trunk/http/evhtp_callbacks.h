@@ -4,30 +4,22 @@ class HttpCallback;
 #include <google/dense_hash_map>
 #include <list>
 #include <functional>
+#include <stdint.h>
+#include <unicode/unistr.h>
 
-
-struct HashString:public std::unary_function<std::string, size_t>{
+struct HashString:public std::unary_function<icu::UnicodeString, size_t>{
 public:
-  typedef std::string _Kty;
-
-	size_t operator()(const _Kty& _Keyval) const
-		{	// hash _Keyval to size_t value by pseudorandomizing transform
-		size_t _Val = 2166136261U;
-		size_t _First = 0;
-		size_t _Last = _Keyval.size();
-		size_t _Stride = 1 + _Last / 10;
-
-		for(; _First < _Last; _First += _Stride)
-			_Val = 16777619U * _Val ^ (size_t)_Keyval[_First];
-		return (_Val);
+	size_t operator()(const icu::UnicodeString& _Keyval) const
+		{	
+		   return _Keyval.hashCode();
 		}
 };
 
 struct eqstr
 {
-  bool operator()(const std::string& s1, const std::string& s2) const
+  bool operator()(const icu::UnicodeString& s1, const icu::UnicodeString& s2) const
   {	  
-	  return s1.compare(s2)==0;
+	  return (s1 == s2)==TRUE;
   }
 };
 
@@ -43,7 +35,8 @@ class evhtp_callbacks_s {
 public:
 	evhtp_callbacks_s();
 	virtual ~evhtp_callbacks_s();
-	google::dense_hash_map<std::string,HttpCallback*,HashString,eqstr> callbacks; /**< hash of path callbacks */    
+	HttpCallback* find(const icu::UnicodeString&   path);
+	google::dense_hash_map<icu::UnicodeString,HttpCallback*,HashString,eqstr> callbacks; /**< hash of path callbacks */    
     std::list<HttpCallback*>   regex_callbacks; /**< list of regex callbacks */
 
 };

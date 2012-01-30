@@ -1,7 +1,8 @@
 ﻿#pragma once
 
 #include <stdexcept>
-
+#include <stdint.h> //防止icu的头文件中对某些常量重定义
+#include <unicode/unistr.h>
 
 class PathCorruptedException:public std::runtime_error{
 public:
@@ -40,15 +41,7 @@ class HttpPath {
 public:
 	HttpPath(const char * data, size_t len);
 	~HttpPath();
-    char       * full;                /**< the full path+file (/a/b/c.html) */
+    icu::UnicodeString        full;                /**< the full path+file (/a/b/c.html) */
     char       * path;                /**< the path (/a/b/) */
     char       * file;                /**< the filename if present (c.html) */
-    char       * match_start;
-    char       * match_end;
-    unsigned int matched_soff;        /**< offset of where the uri starts
-                                       *   mainly used for regex matching
-                                       */
-    unsigned int matched_eoff;        /**< offset of where the uri ends
-                                       *   mainly used for regex matching
-                                       */
 };
