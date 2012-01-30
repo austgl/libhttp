@@ -14,7 +14,7 @@ public:
 	virtual size_t         run( htparse_hooks *, const char *, size_t)=0;
 	virtual int            should_keep_alive()=0;
 	virtual htp_scheme     get_scheme()=0;
-	virtual htp_method     get_method()=0;
+	virtual HttpMethod     get_method()=0;
 	virtual const char   * get_methodstr()=0;
 	virtual void           set_major( unsigned char)=0;
 	virtual void           set_minor( unsigned char)=0;
@@ -26,7 +26,7 @@ public:
 	virtual const char   * get_strerror()=0;
 	virtual void         * get_userdata()=0;
 	virtual void           set_userdata( void *)=0;
-	virtual void           init( htp_type)=0;
+	virtual void           init( HttpMessageType)=0;
 };
 
 IHTParser     * htparser_new(void);

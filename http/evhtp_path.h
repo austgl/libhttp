@@ -36,10 +36,10 @@ public:
 /**
  * @brief structure which represents a URI path and or file
  */
-struct evhtp_path_s {
+class HttpPath {
 public:
-	evhtp_path_s(const char * data, size_t len);
-	~evhtp_path_s();
+	HttpPath(const char * data, size_t len);
+	~HttpPath();
     char       * full;                /**< the full path+file (/a/b/c.html) */
     char       * path;                /**< the path (/a/b/) */
     char       * file;                /**< the filename if present (c.html) */

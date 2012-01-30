@@ -6,11 +6,11 @@
 #include "evhtp_kv.h"
 #include <stdlib.h> //free
 
-evhtp_uri_s::evhtp_uri_s():authority(NULL),path(NULL),fragment(NULL),query_raw(NULL),query(NULL),scheme(htp_scheme_none){
+HttpUri::HttpUri():authority(NULL),path(NULL),fragment(NULL),query_raw(NULL),query(NULL),scheme(htp_scheme_none){
 
 }
 
-evhtp_uri_s::~evhtp_uri_s(){
+HttpUri::~HttpUri(){
 	evhtp_query_free(this->query);
     delete this->path;
 

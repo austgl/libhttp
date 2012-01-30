@@ -9,13 +9,13 @@
 
 #include <stdexcept>
 
-extern void evhtp_send_reply(evhtp_request_s * request, evhtp_res code);
+extern void evhtp_send_reply(EvHttpRequest * request, evhtp_res code);
 
-static void _evhtp_default_request_cb(evhtp_request_s * request, void * arg) {
+static void _evhtp_default_request_cb(EvHttpRequest * request, void * arg) {
     return evhtp_send_reply(request, EVHTP_RES_NOTFOUND);
 }
 
-evhtp_s::evhtp_s(event_base * evbase, void * arg){
+evhtp::evhtp(event_base * evbase, void * arg){
 
 	this->server=NULL;
 	this->ssl_ctx=NULL;
@@ -38,5 +38,5 @@ evhtp_s::evhtp_s(event_base * evbase, void * arg){
 
 }
 
-evhtp_s::~evhtp_s(){
+evhtp::~evhtp(){
 }

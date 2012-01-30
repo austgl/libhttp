@@ -18,7 +18,7 @@ class htparser :public IHTParser{
   virtual size_t         run( htparse_hooks *, const char *, size_t);
   virtual int            should_keep_alive();
   virtual htp_scheme     get_scheme();
-  virtual htp_method     get_method();
+  virtual HttpMethod     get_method();
   virtual const char   * get_methodstr();
   virtual void           set_major( unsigned char);
   virtual void           set_minor( unsigned char);
@@ -30,7 +30,7 @@ class htparser :public IHTParser{
   virtual const char   * get_strerror();
   virtual void         * get_userdata();
   virtual void           set_userdata( void *);
-  virtual void           init( htp_type);
+  virtual void           init( HttpMessageType);
   uint64_t get_bytes_read();
 
  private:
@@ -41,9 +41,9 @@ class htparser :public IHTParser{
   int   flags;
   eval_hdr_val   heval;
 
-  htp_type   type;
+  HttpMessageType   type;
   htp_scheme scheme;
-  htp_method method;
+  HttpMethod method;
 
   unsigned char major_;
   unsigned char minor_;

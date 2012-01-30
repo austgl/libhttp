@@ -150,7 +150,7 @@ _evhtp_protocol(const char major, const char minor) {
  * @return EVHTP_RES_OK on success, otherwise something else.
  */
 static evhtp_res
-_evhtp_path_hook(evhtp_request_t * request, evhtp_path_t * path) {
+_evhtp_path_hook(evhtp_request_t * request, HttpPath * path) {
     HOOK_REQUEST_RUN(request, on_path, path);
 
     return EVHTP_RES_OK;
@@ -342,14 +342,14 @@ int MyHtparseHooks::on_msg_begin(IHTParser * p) {
             return -1;
         }
     }
-	c->request = new evhtp_request_s(c);
+	c->request = new EvHttpRequest(c);
     
     return 0;
 }
 
 int MyHtparseHooks::args(IHTParser * p, const char * data, size_t len) {
-     evhtp_connection_t * c = reinterpret_cast<evhtp_connection_t*>(p->get_userdata());
-    evhtp_uri_t        * uri = c->request->uri;
+    evhtp_connection_t * c = reinterpret_cast<evhtp_connection_t*>(p->get_userdata());
+    HttpUri  * uri = c->request->uri;
 
     if (!(uri->query = evhtp_parse_query(data, len))) {
         c->request->status = EVHTP_RES_ERROR;
@@ -424,8 +424,8 @@ int MyHtparseHooks::path(IHTParser * p, const char * data, size_t len) {
     char               * match_start;
     char               * match_end;
 
-	evhtp_uri_s  * uri=new  evhtp_uri_s();    
-	evhtp_path_s * path=new evhtp_path_s(data, len);
+	HttpUri  * uri=new  HttpUri();    
+	HttpPath * path=new HttpPath(data, len);
     
 	{
 		tbb::mutex::scoped_lock l(c->htp->lock);
@@ -595,9 +595,9 @@ _evhtp_create_headers(evhtp_header_t * header, void * arg) {
     return 0;
 }
 
-static evbuf_t *
+static evbuffer *
 _evhtp_create_reply(evhtp_request_t * request, evhtp_res code) {
-    evbuf_t * buf = evbuffer_new();
+    evbuffer * buf = evbuffer_new();
 
     if (evbuffer_get_length(request->buffer_out) && request->chunked == 0) {
         /* add extra headers (like content-length/type) if not already present */
@@ -747,7 +747,7 @@ static void _evhtp_connection_eventcb(evbev_t * bev, short events, void * arg) {
 		return;
 	}
 
-	std::auto_ptr<evhtp_connection_s> c(reinterpret_cast<evhtp_connection_s*>(arg));
+	std::auto_ptr<evhtp_connection> c(reinterpret_cast<evhtp_connection*>(arg));
 
 	if (c->ssl && !(events & BEV_EVENT_EOF)) {
 		c->error = 1;
@@ -804,7 +804,7 @@ _evhtp_shutdown_eventcb(evbev_t * bev, short events, void * arg) {
 
 
 static int
-_evhtp_run_pre_accept(evhtp_t * htp, int sock, struct sockaddr * s, int sl) {
+_evhtp_run_pre_accept(evhtp * htp, int sock, struct sockaddr * s, int sl) {
     void    * args;
     evhtp_res res;
 
@@ -823,7 +823,7 @@ _evhtp_run_pre_accept(evhtp_t * htp, int sock, struct sockaddr * s, int sl) {
 }
 
 static int
-_evhtp_run_post_accept(evhtp_t * htp, evhtp_connection_t * connection) {
+_evhtp_run_post_accept(evhtp * htp, evhtp_connection_t * connection) {
     void    * args;
     evhtp_res res;
 
@@ -843,7 +843,7 @@ _evhtp_run_post_accept(evhtp_t * htp, evhtp_connection_t * connection) {
 /*
 static void
 _evhtp_run_in_thread(evthr_t * thr, void * arg, void * shared) {
-    evhtp_t            * htp        = (evhtp_t*)shared;
+    evhtp            * htp        = (evhtp*)shared;
     evhtp_connection_t * connection = (evhtp_connection_t*)arg;
 
     connection->evbase = evthr_get_base(thr);
@@ -862,7 +862,7 @@ _evhtp_run_in_thread(evthr_t * thr, void * arg, void * shared) {
 
 static void
 _evhtp_accept_cb(evserv_t * serv, int fd, struct sockaddr * s, int sl, void * arg) {
-    evhtp_t            * htp = (evhtp_t*)arg;
+    evhtp            * htp = (evhtp*)arg;
     
     if (_evhtp_run_pre_accept(htp, fd, s, sl) < 0) {
         return;
@@ -895,7 +895,7 @@ _evhtp_accept_cb(evserv_t * serv, int fd, struct sockaddr * s, int sl, void * ar
  * PUBLIC FUNCTIONS
  */
 
-htp_method
+HttpMethod
 evhtp_request_get_method(evhtp_request_t * r) {
 	return r->conn->parser->get_method();
 }
@@ -1428,13 +1428,10 @@ error:
 }     /* evhtp_parse_query */
 
 void
-evhtp_send_reply_start(evhtp_request_t * request, evhtp_res code) {
-    evhtp_connection_t * c;
-    evbuf_t            * reply_buf;
-
-    c = evhtp_request_get_connection(request);
-
-    if (!(reply_buf = _evhtp_create_reply(request, code))) {
+evhtp_send_reply_start(evhtp_request_t * request, evhtp_res code) {    
+    evhtp_connection_t * c = evhtp_request_get_connection(request);
+	evbuffer * reply_buf=_evhtp_create_reply(request, code);
+    if (!reply_buf) {
         delete c;
 		return ;
     }
@@ -1475,7 +1472,7 @@ evhtp_send_reply(evhtp_request_t * request, evhtp_res code) {
 }
 
 int
-evhtp_response_needs_body(const evhtp_res code, const htp_method method) {
+evhtp_response_needs_body(const evhtp_res code, const HttpMethod method) {
     return code != EVHTP_RES_NOCONTENT &&
            code != EVHTP_RES_NOTMOD &&
            (code < 100 || code >= 200) &&
@@ -1581,7 +1578,7 @@ evhtp_send_reply_chunk_end(evhtp_request_t * request) {
 }
 
 int
-evhtp_bind_sockaddr(evhtp_t * htp, struct sockaddr * sa, size_t sin_len, int backlog) {
+evhtp_bind_sockaddr(evhtp * htp, struct sockaddr * sa, size_t sin_len, int backlog) {
 #ifdef SIGPIPE
     signal(SIGPIPE, SIG_IGN);
 #endif
@@ -1591,7 +1588,7 @@ evhtp_bind_sockaddr(evhtp_t * htp, struct sockaddr * sa, size_t sin_len, int bac
     return htp->server ? 0 : -1;
 }
 
-int evhtp_bind_socket(evhtp_t * htp, const char * baddr, uint16_t port, int backlog) {
+int evhtp_bind_socket(evhtp * htp, const char * baddr, uint16_t port, int backlog) {
   struct sockaddr_in  sin;
   struct sockaddr  * sa;
   size_t             sin_len;
@@ -1747,11 +1744,11 @@ evhtp_set_hook(evhtp_hooks_t ** hooks, evhtp_hook_type type, void * cb, void * a
 }         /* evhtp_set_hook */
 
 evhtp_callback_t *
-evhtp_set_cb(evhtp_s * htp, const char * path, evhtp_callback_cb cb, void * arg) {
+evhtp_set_cb(evhtp * htp, const char * path, evhtp_callback_cb cb, void * arg) {
     evhtp_callback_t * hcb;
 
 	{
-		evhtp_s::mylocktype::scoped_lock l(htp->lock);
+		evhtp::mylocktype::scoped_lock l(htp->lock);
 
 
 		if (!(hcb = evhtp_callback_new(path, evhtp_callback_type_hash, cb, arg))) {        
@@ -1779,13 +1776,11 @@ _evhtp_thread_init(evthr_t * thr, void * arg) {
 
 
 evhtp_callback_t *
-evhtp_set_regex_cb(evhtp_t * htp, const char * pattern, evhtp_callback_cb cb, void * arg) {
+evhtp_set_regex_cb(evhtp * htp, const char * pattern, evhtp_callback_cb cb, void * arg) {
     evhtp_callback_t * hcb;
 
     {
-		evhtp_s::mylocktype::scoped_lock l(htp->lock);
-
-
+		evhtp::mylocktype::scoped_lock l(htp->lock);
 
     if (!(hcb = evhtp_callback_new(pattern, evhtp_callback_type_regex, cb, arg))) {
 
@@ -1804,22 +1799,16 @@ evhtp_set_regex_cb(evhtp_t * htp, const char * pattern, evhtp_callback_cb cb, vo
 
 
 void
-evhtp_set_pre_accept_cb(evhtp_t * htp, evhtp_pre_accept_cb cb, void * arg) {
+evhtp_set_pre_accept_cb(evhtp * htp, evhtp_pre_accept_cb cb, void * arg) {
     htp->defaults.pre_accept       = cb;
     htp->defaults.pre_accept_cbarg = arg;
 }
 
 void
-evhtp_set_post_accept_cb(evhtp_t * htp, evhtp_post_accept_cb cb, void * arg) {
+evhtp_set_post_accept_cb(evhtp * htp, evhtp_post_accept_cb cb, void * arg) {
     htp->defaults.post_accept       = cb;
     htp->defaults.post_accept_cbarg = arg;
 }
-
-
-
-
-
-
 
 evbev_t *
 evhtp_connection_get_bev(evhtp_connection_t * connection) {
@@ -1847,7 +1836,7 @@ evhtp_request_get_connection(evhtp_request_t * request) {
 }
 
 void
-evhtp_set_timeouts(evhtp_t * htp, struct timeval * r_timeo, struct timeval * w_timeo) {
+evhtp_set_timeouts(evhtp * htp, struct timeval * r_timeo, struct timeval * w_timeo) {
     if (r_timeo != NULL) {
         htp->recv_timeo =(timeval*) malloc(sizeof(struct timeval));
         memcpy(htp->recv_timeo, r_timeo, sizeof(struct timeval));

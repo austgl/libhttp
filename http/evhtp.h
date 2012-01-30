@@ -24,15 +24,7 @@
 #include <openssl/rand.h>
 
 
-class evhtp_connection_s;
-
-
-
-
-
-
-
-
+class evhtp_connection;
 
 typedef enum evhtp_hook_type       evhtp_hook_type;
 typedef enum evhtp_callback_type   evhtp_callback_type;
@@ -41,14 +33,7 @@ typedef enum evhtp_ssl_scache_type evhtp_ssl_scache_type;
 
 //typedef void (*evhtp_thread_init_cb)(evhtp_t * htp, evthr_t * thr, void * arg);
 
-
-
-
 typedef int (*evhtp_headers_iterator)(evhtp_header_t * header, void * arg);
-
-
-
-
 
 #define EVHTP_VERSION          "0.4.6"
 #define EVHTP_VERSION_MAJOR    0
@@ -58,34 +43,12 @@ typedef int (*evhtp_headers_iterator)(evhtp_header_t * header, void * arg);
 #define evhtp_headers_iterator evhtp_kvs_iterator
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #define evhtp_request_content_len(r) htparser_get_content_length(r->conn->parser)
 
-
-
-
-
-
-
-void      evhtp_set_timeouts(evhtp_t * htp, struct timeval * r, struct timeval * w);
+class evhtp;
+void      evhtp_set_timeouts(evhtp * htp, struct timeval * r, struct timeval * w);
 int       evhtp_ssl_use_threads(void);
-int       evhtp_ssl_init(evhtp_t * htp, evhtp_ssl_cfg_t * ssl_cfg);
+int       evhtp_ssl_init(evhtp * htp, evhtp_ssl_cfg_t * ssl_cfg);
 
 
 /**
@@ -96,7 +59,7 @@ int       evhtp_ssl_init(evhtp_t * htp, evhtp_ssl_cfg_t * ssl_cfg);
  *
  * @return 0 on success, -1 on error
  */
-int evhtp_use_callback_locks(evhtp_t * htp);
+int evhtp_use_callback_locks(evhtp * htp);
 
 /**
  * @brief sets a callback which is called if no other callbacks are matched
@@ -105,9 +68,9 @@ int evhtp_use_callback_locks(evhtp_t * htp);
  * @param cb  the function to be executed
  * @param arg user-defined argument passed to the callback
  */
-void evhtp_set_gencb(evhtp_t * htp, evhtp_callback_cb cb, void * arg);
-void evhtp_set_pre_accept_cb(evhtp_t * htp, evhtp_pre_accept_cb, void * arg);
-void evhtp_set_post_accept_cb(evhtp_t * htp, evhtp_post_accept_cb, void * arg);
+void evhtp_set_gencb(evhtp * htp, evhtp_callback_cb cb, void * arg);
+void evhtp_set_pre_accept_cb(evhtp * htp, evhtp_pre_accept_cb, void * arg);
+void evhtp_set_post_accept_cb(evhtp * htp, evhtp_post_accept_cb, void * arg);
 
 
 /**
@@ -120,7 +83,7 @@ void evhtp_set_post_accept_cb(evhtp_t * htp, evhtp_post_accept_cb, void * arg);
  *
  * @return evhtp_callback_t * on success, NULL on error.
  */
-evhtp_callback_t * evhtp_set_cb(evhtp_t * htp, const char * path, evhtp_callback_cb cb, void * arg);
+evhtp_callback_t * evhtp_set_cb(evhtp * htp, const char * path, evhtp_callback_cb cb, void * arg);
 
 
 /**
@@ -133,7 +96,7 @@ evhtp_callback_t * evhtp_set_cb(evhtp_t * htp, const char * path, evhtp_callback
  *
  * @return evhtp_callback_t * on success, NULL on error
  */
-evhtp_callback_t * evhtp_set_regex_cb(evhtp_t * htp, const char * pattern, evhtp_callback_cb cb, void * arg);
+evhtp_callback_t * evhtp_set_regex_cb(evhtp * htp, const char * pattern, evhtp_callback_cb cb, void * arg);
 
 
 /**
@@ -177,8 +140,8 @@ evhtp_callback_t * evhtp_set_regex_cb(evhtp_t * htp, const char * pattern, evhtp
  */
 int  evhtp_set_hook(evhtp_hooks_t ** hooks, evhtp_hook_type type, void * cb, void * arg);
 
-int  evhtp_bind_socket(evhtp_t * htp, const char * addr, uint16_t port, int backlog);
-int  evhtp_bind_sockaddr(evhtp_t * htp, struct sockaddr *, size_t sin_len, int backlog);
+int  evhtp_bind_socket(evhtp * htp, const char * addr, uint16_t port, int backlog);
+int  evhtp_bind_sockaddr(evhtp * htp, struct sockaddr *, size_t sin_len, int backlog);
 
 //int  evhtp_use_threads(evhtp_t * htp, evhtp_thread_init_cb init_cb, int nthreads, void * arg);
 
@@ -194,7 +157,7 @@ void evhtp_send_reply_end(evhtp_request_t * request);
  * @return 1 if the response MUST have a body; 0 if the response MUST NOT have
  *     a body.
  */
-int  evhtp_response_needs_body(const evhtp_res code, const htp_method method);
+int  evhtp_response_needs_body(const evhtp_res code, const HttpMethod method);
 void evhtp_send_reply_chunk_start(evhtp_request_t * request, evhtp_res code);
 void evhtp_send_reply_chunk(evhtp_request_t * request, evbuf_t * buf);
 void evhtp_send_reply_chunk_end(evhtp_request_t * request);
@@ -339,7 +302,7 @@ const char * evhtp_header_find(evhtp_headers_t * headers, const char * key);
  *
  * @return htp_method enum
  */
-htp_method evhtp_request_get_method(evhtp_request_t * r);
+HttpMethod evhtp_request_get_method(evhtp_request_t * r);
 
 void       evhtp_connection_pause(evhtp_connection_t * connection);
 void       evhtp_connection_resume(evhtp_connection_t * connection);
