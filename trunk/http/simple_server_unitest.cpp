@@ -41,10 +41,10 @@ int main(int argc, char **argv) {
 	event_enable_debug_mode();
 
     evbase_t * evbase = event_base_new();
-    evhtp  * htp    = new evhtp(evbase, NULL);
+    std::auto_ptr<evhtp> htp(new evhtp(evbase, NULL));
 
-    evhtp_set_regex_cb(htp, "/([a-z]+)/test", testcb, NULL);
-    evhtp_bind_socket(htp, "0.0.0.0", 8388, 1024);
+    htp->set_regex_cb("/([a-z]+)/test", testcb, NULL);
+    htp->bind_socket("0.0.0.0", 8388, 1024);
     event_base_loop(evbase, 0);
 	return 0;
 }
